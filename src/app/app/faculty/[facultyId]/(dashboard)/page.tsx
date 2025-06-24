@@ -228,31 +228,6 @@ export default function Page() {
               </Flex>
             </Card>
           </Col>
-          {/* <Col span={8}>
-            <Card>
-              <Flex justify="space-between">
-                <Statistic loading={isPending} title="Promotions" value={8} />
-              </Flex>
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card>
-              <Flex justify="space-between">
-                <Statistic loading={isPending} title="Personnel" value={"5"} />
-              </Flex>
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card>
-              <Flex justify="space-between">
-                <Statistic
-                  loading={isPending}
-                  title="Taux de réussite"
-                  value={"95%"}
-                />
-              </Flex>
-            </Card>
-          </Col> */}
           <Col span={24}>
             <Card>
               <Typography.Title level={5}>Départements</Typography.Title>

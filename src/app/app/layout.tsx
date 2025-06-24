@@ -3,23 +3,17 @@
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { YearSelector } from "@/components/yearSelector";
 import { useYid } from "@/hooks/use-yid";
-import { getFaculties } from "@/lib/api";
+import { getDepartmentsByFacultyId } from "@/lib/api";
+// import { getFaculties } from "@/lib/api";
 import { logout } from "@/lib/api/auth";
 import { useSessionStore } from "@/store";
 import {
   BranchesOutlined,
-  DashboardOutlined,
-  DollarOutlined,
   LoadingOutlined,
   LogoutOutlined,
   MenuOutlined,
-  NotificationOutlined,
   QuestionOutlined,
-  SafetyCertificateOutlined,
-  SettingOutlined,
   SubnodeOutlined,
-  TeamOutlined,
-  UsergroupAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
@@ -49,24 +43,25 @@ export default function AppLayout({
   } = theme.useToken();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoadingLogout, setIsLoadingLogout] = useState<boolean>(false);
-  const {faculty}=useSessionStore()
+  const { faculty } = useSessionStore();
   const { removeYid } = useYid();
 
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data: faculties, isPending: isPendingFacalties } = useQuery({
-    queryKey: ["faculties"],
-    queryFn: getFaculties,
-  });
+  const { data: departments } = useQuery({
+      queryKey: ["departments", `${faculty?.id}`],
+      queryFn: ({ queryKey }) => getDepartmentsByFacultyId(Number(queryKey[1])),
+      enabled: !!faculty?.id,
+    });
 
-  const getFacultiesAsMenu = () => {
-    const facaltiesAsMenu = faculties?.map((fac) => ({
-      key: `/app/faculty/${fac.id}`,
-      label: fac.name,
+  const getDepartmentsAsMenu = () => {
+    const menu = departments?.map((dep) => ({
+      key: `/app/department/${dep.id}`,
+      label: dep.name,
       icon: <SubnodeOutlined />,
     }));
-    return facaltiesAsMenu;
+    return menu;
   };
 
   return (
@@ -82,7 +77,10 @@ export default function AppLayout({
           paddingRight: 32,
         }}
       >
-        <Link href="/app" style={{ display: "flex", alignItems: "center" }}>
+        <Link
+          href={`/app/faculty/${faculty?.id}`}
+          style={{ display: "flex", alignItems: "center" }}
+        >
           <div className="flex items-center pr-3">
             <Image
               src="/ucbc-logo.png"
@@ -92,7 +90,7 @@ export default function AppLayout({
             />
           </div>
           <Typography.Title level={5} style={{ marginBottom: 0 }}>
-            CI-UCBC
+            {faculty?.acronym}
           </Typography.Title>
         </Link>
         <Menu
@@ -108,18 +106,23 @@ export default function AppLayout({
             },
             { key: `/app/faculty/${faculty?.id}/students`, label: "Étudiants" },
             {
-              key: `/app/faculty/${faculty?.id}/departments`,
-              label: "Départements",
+              key: `departments`,
+              label: "Mentions",
+              //  icon: <BranchesOutlined />,
+              children: getDepartmentsAsMenu()
             },
             {
               key: `/app/faculty/${faculty?.id}/taught-courses`,
-              label: "Cours programmés",
+              label: "Cours",
             },
             {
               key: `/app/faculty/${faculty?.id}/courses`,
-              label: "Catalogue des cours",
+              label: "Catalogue",
             },
-            { key: `/app/faculty/${faculty?.id}/teachers`, label: "Enseignants" },
+            // {
+            //   key: `/app/faculty/${faculty?.id}/teachers`,
+            //   label: "Enseignants",
+            // },
           ]}
           style={{ flex: 1, minWidth: 0, borderBottom: 0 }}
           onClick={({ key }) => {
@@ -175,9 +178,6 @@ export default function AppLayout({
               icon={<UserOutlined />}
             />
           </Dropdown>
-          <Link href="/console">
-            <Button type="text" icon={<SettingOutlined />} />
-          </Link>
           <Link href="/app/support">
             <Button type="text" icon={<QuestionOutlined />}></Button>
           </Link>

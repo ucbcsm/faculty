@@ -22,16 +22,23 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   Button,
+  Card,
   Col,
   Dropdown,
+  Form,
   Input,
+  Layout,
   Row,
+  Skeleton,
   Space,
   Table,
+  theme,
+  Typography,
 } from "antd";
 import { useParams } from "next/navigation";
 import { FC, useState } from "react";
 import { NewCourseForm } from "@/app/console/courses/forms/new";
+import { Palette } from "@/components/palette";
 
 type ActionsBarProps = {
   record: Course;
@@ -86,6 +93,9 @@ const ActionsBar: FC<ActionsBarProps> = ({ record, faculties }) => {
 };
 
 export default function Page() {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
   const { facultyId } = useParams();
   const { data, isPending, isError } = useQuery({
     queryKey: ["courses", facultyId],
@@ -106,96 +116,157 @@ export default function Page() {
     return <DataFetchErrorResult />;
   }
   return (
-    <Row gutter={[24, 24]}>
-      <Col>
-        <Table
-          title={() => (
-            <header className="flex pb-3">
-              <Space>
-                <Input.Search placeholder="Rechercher un cours dans le catalogue ..." />
-              </Space>
-              <div className="flex-1" />
-              <Space>
-                <NewCourseForm
-                  faculties={faculties?.filter(
-                    (fac) => fac.id === Number(facultyId)
-                  )}
-                />
-                <Button
-                  icon={<PrinterOutlined />}
-                  style={{ boxShadow: "none" }}
-                >
-                  Imprimer
-                </Button>
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: "pdf",
-                        label: "PDF",
-                        icon: <FilePdfOutlined />,
-                        title: "Exporter en PDF",
-                      },
-                      {
-                        key: "excel",
-                        label: "EXCEL",
-                        icon: <FileExcelOutlined />,
-                        title: "Exporter vers Excel",
-                      },
-                    ],
-                  }}
-                >
-                  <Button icon={<DownOutlined />} style={{ boxShadow: "none" }}>
-                    Exporter
+    <Layout>
+      <Layout.Content
+        style={{
+          minHeight: 280,
+          padding: "0 32px 0 32px",
+          background: colorBgContainer,
+          overflowY: "auto",
+          height: "calc(100vh - 64px)",
+        }}
+      >
+        <Layout.Header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            background: colorBgContainer,
+            padding: 0,
+          }}
+        >
+          <Space>
+            {/* <BackButton /> */}
+            {!isPending ? (
+              <Typography.Title level={3} style={{ marginBottom: 0 }}>
+                Catalogue de cours
+              </Typography.Title>
+            ) : (
+              <Form>
+                <Skeleton.Input active />
+              </Form>
+            )}
+          </Space>
+          <div className="flex-1" />
+          <Space>
+            <Palette />
+          </Space>
+        </Layout.Header>
+        <Card>
+          <Table
+            title={() => (
+              <header className="flex pb-3">
+                <Space>
+                  <Input.Search placeholder="Rechercher un cours dans le catalogue ..." />
+                </Space>
+                <div className="flex-1" />
+                <Space>
+                  <NewCourseForm
+                    faculties={faculties?.filter(
+                      (fac) => fac.id === Number(facultyId)
+                    )}
+                  />
+                  <Button
+                    icon={<PrinterOutlined />}
+                    style={{ boxShadow: "none" }}
+                  >
+                    Imprimer
                   </Button>
-                </Dropdown>
-              </Space>
-            </header>
-          )}
-          dataSource={data}
-          columns={[
-            {
-              title: "Titre du cours",
-              dataIndex: "title",
-              key: "title",
-              render: (_, record, __) => record.name,
-            },
-            {
-              title: "Code",
-              dataIndex: "code",
-              key: "code",
-              width: 100,
-            },
-            {
-              title: "Nature",
-              dataIndex: "course_type",
-              key: "type",
-              render: (_, record, __) => getCourseTypeName(record.course_type),
-              // width:100,
-              ellipsis: true,
-            },
-            {
-              title: "",
-              key: "actions",
-              render: (_, record, __) => {
-                return <ActionsBar record={record} faculties={faculties?.filter(fac=>fac.id===Number(facultyId))} />;
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "pdf",
+                          label: "PDF",
+                          icon: <FilePdfOutlined />,
+                          title: "Exporter en PDF",
+                        },
+                        {
+                          key: "excel",
+                          label: "EXCEL",
+                          icon: <FileExcelOutlined />,
+                          title: "Exporter vers Excel",
+                        },
+                      ],
+                    }}
+                  >
+                    <Button
+                      icon={<DownOutlined />}
+                      style={{ boxShadow: "none" }}
+                    >
+                      Exporter
+                    </Button>
+                  </Dropdown>
+                </Space>
+              </header>
+            )}
+            dataSource={data}
+            columns={[
+              {
+                title: "Titre du cours",
+                dataIndex: "title",
+                key: "title",
+                render: (_, record, __) => record.name,
               },
-              width: 50,
-            },
-          ]}
-          rowKey="id"
-          rowClassName={`bg-[#f5f5f5] odd:bg-white`}
-          rowSelection={{
-            type: "checkbox",
+              {
+                title: "Code",
+                dataIndex: "code",
+                key: "code",
+                width: 100,
+              },
+              {
+                title: "Nature",
+                dataIndex: "course_type",
+                key: "type",
+                render: (_, record, __) =>
+                  getCourseTypeName(record.course_type),
+                // width:100,
+                ellipsis: true,
+              },
+              {
+                title: "",
+                key: "actions",
+                render: (_, record, __) => {
+                  return (
+                    <ActionsBar
+                      record={record}
+                      faculties={faculties?.filter(
+                        (fac) => fac.id === Number(facultyId)
+                      )}
+                    />
+                  );
+                },
+                width: 50,
+              },
+            ]}
+            rowKey="id"
+            rowClassName={`bg-[#f5f5f5] odd:bg-white`}
+            rowSelection={{
+              type: "checkbox",
+            }}
+            size="small"
+            pagination={{
+              defaultPageSize: 25,
+              pageSizeOptions: [25, 50, 75, 100],
+              size: "small",
+            }}
+          />
+        </Card>
+        <Layout.Footer
+          style={{
+            display: "flex",
+            background: colorBgContainer,
+            padding: "24px 0",
           }}
-          size="small"
-          pagination={{
-            defaultPageSize: 25,
-            pageSizeOptions: [25, 50, 75, 100],
-            size: "small",
-          }}
-        />
-      </Col>
-    </Row>
+        >
+          <Typography.Text type="secondary">
+            © {new Date().getFullYear()} CI-UCBC. Tous droits réservés.
+          </Typography.Text>
+          <div className="flex-1" />
+          <Space>
+            <Palette />
+          </Space>
+        </Layout.Footer>
+      </Layout.Content>
+    </Layout>
   );
 }
