@@ -118,7 +118,6 @@ export function YearSelector() {
                   Année
                 </Typography.Title>
               }
-              extra={!faculty ? <NewYearForm buttonType="link" /> : undefined}
             >
               <Form
                 disabled={isPending}

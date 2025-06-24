@@ -78,11 +78,10 @@ export const getServerSession = async (): Promise<Session> => {
       faculty = resFaculty.data as Faculty | undefined;
     } catch (error: any) {
       // if (error?.response?.status !== 404 && error?.response?.status !== 400) {
-        throw error;
+      throw error;
       // }
       // If 404 or 400, faculty remains undefined
     }
-
 
     // if (!user) {
     //   return null;
@@ -96,7 +95,7 @@ export const getServerSession = async (): Promise<Session> => {
       faculty,
     };
   } catch (error: any) {
-    return null
+    return null;
     // throw new Error("Failed to get server session");
   }
 };
@@ -143,8 +142,23 @@ export const login = async (credentials: {
     if (!access || !refresh) {
       throw new Error("Invalid login response");
     } else {
-      Cookies.set("accessToken", access);
-      Cookies.set("refreshToken", refresh);
+      try {
+        const resFaculty = await api.get(`/account/faculty-from-user/`, {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        });
+        const faculty = resFaculty.data as Faculty | undefined;
+        if (faculty) {
+          Cookies.set("accessToken", access);
+          Cookies.set("refreshToken", refresh);
+        }
+      } catch (error: any) {
+        // if (error?.response?.status !== 404 && error?.response?.status !== 400) {
+        throw error;
+        // }
+        // If 404 or 400, faculty remains undefined
+      }
     }
   } catch (error: any) {
     if (error?.status === 401) {
