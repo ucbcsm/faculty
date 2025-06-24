@@ -17,12 +17,15 @@ import {
   Col,
   Descriptions,
   Flex,
+  Form,
+  Layout,
   List,
   Progress,
   Row,
   Skeleton,
   Space,
   Statistic,
+  theme,
   Typography,
 } from "antd";
 import { useParams, useRouter } from "next/navigation";
@@ -31,8 +34,12 @@ import { FacultyMembersList } from "./_components/members/list";
 import { EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { EditFacultyForm } from "@/app/console/fields/faculties/forms/edit";
+import { Palette } from "@/components/palette";
 
 export default function Page() {
+   const {
+      token: { colorBgContainer },
+    } = theme.useToken();
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const { facultyId } = useParams();
   const { yid } = useYid();
@@ -85,6 +92,41 @@ export default function Page() {
   }
 
   return (
+    <Layout>
+      <Layout.Content
+        style={{
+          minHeight: 280,
+          padding: "0 32px 0 32px",
+          background: colorBgContainer,
+          overflowY: "auto",
+          height: "calc(100vh - 64px)",
+        }}
+      >
+        <Layout.Header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            background: colorBgContainer,
+            padding: 0,
+          }}
+        >
+          <Space>
+            {/* <BackButton /> */}
+            {!isPending ? (
+              <Typography.Title level={3} style={{ marginBottom: 0 }}>
+                {faculty?.name} (Filière)
+              </Typography.Title>
+            ) : (
+              <Form>
+                <Skeleton.Input active />
+              </Form>
+            )}
+          </Space>
+          <div className="flex-1" />
+          <Space>
+            <Palette />
+          </Space>
+        </Layout.Header>
     <Row gutter={[16, 16]}>
       <Col xs={24} sm={24} md={16}>
         <Row gutter={[16, 16]}>
@@ -299,5 +341,22 @@ export default function Page() {
         setOpen={setOpenEdit}
       />
     </Row>
+    <Layout.Footer
+          style={{
+            display: "flex",
+            background: colorBgContainer,
+            padding: "24px 0",
+          }}
+        >
+          <Typography.Text type="secondary">
+            © {new Date().getFullYear()} CI-UCBC. Tous droits réservés.
+          </Typography.Text>
+          <div className="flex-1" />
+          <Space>
+            <Palette />
+          </Space>
+        </Layout.Footer>
+    </Layout.Content>
+    </Layout>
   );
 }

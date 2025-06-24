@@ -5,6 +5,7 @@ import { YearSelector } from "@/components/yearSelector";
 import { useYid } from "@/hooks/use-yid";
 import { getFaculties } from "@/lib/api";
 import { logout } from "@/lib/api/auth";
+import { useSessionStore } from "@/store";
 import {
   BranchesOutlined,
   DashboardOutlined,
@@ -48,6 +49,7 @@ export default function AppLayout({
   } = theme.useToken();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoadingLogout, setIsLoadingLogout] = useState<boolean>(false);
+  const {faculty}=useSessionStore()
   const { removeYid } = useYid();
 
   const router = useRouter();
@@ -101,52 +103,23 @@ export default function AppLayout({
           overflowedIndicator={<MenuOutlined />}
           items={[
             {
-              key: "/app",
-              label: "Tableau de bord",
-              icon: <DashboardOutlined />,
+              key: `/app/faculty/${faculty?.id}`,
+              label: "Aperçu",
+            },
+            { key: `/app/faculty/${faculty?.id}/students`, label: "Étudiants" },
+            {
+              key: `/app/faculty/${faculty?.id}/departments`,
+              label: "Départements",
             },
             {
-              key: "/app/students",
-              label: "Étudiants",
-              icon: <UsergroupAddOutlined />,
+              key: `/app/faculty/${faculty?.id}/taught-courses`,
+              label: "Cours programmés",
             },
             {
-              key: "/app/teachers",
-              label: "Enseigants",
-              icon: <TeamOutlined />,
+              key: `/app/faculty/${faculty?.id}/courses`,
+              label: "Catalogue des cours",
             },
-            {
-              key: "/app/finances",
-              label: "Finances",
-              icon: <DollarOutlined />,
-            },
-            {
-              key: "fields",
-              label: "Filières",
-              icon: <BranchesOutlined />,
-              children: getFacultiesAsMenu(),
-            },
-            {
-              key: "/app/jurys",
-              label: "Jurys",
-              icon: <SafetyCertificateOutlined />,
-            },
-            {
-              key: "7",
-              label: "Autres",
-              children: [
-                {
-                  key: "/app/announcements",
-                  label: "Annonces",
-                  icon: <NotificationOutlined />,
-                },
-                {
-                  key: "/console",
-                  label: "Paramètres",
-                  icon: <SettingOutlined />,
-                },
-              ],
-            },
+            { key: `/app/faculty/${faculty?.id}/teachers`, label: "Enseignants" },
           ]}
           style={{ flex: 1, minWidth: 0, borderBottom: 0 }}
           onClick={({ key }) => {
@@ -220,7 +193,7 @@ export default function AppLayout({
           }}
         >
           {children}
-           <div
+          <div
             className=""
             style={{
               display: isLoadingLogout ? "flex" : "none",
