@@ -27,7 +27,7 @@ export default function ClientProvider({
     }
   }, []);
 
-
+console.log(session.user)
   return (
     <>
       <NuqsAdapter>
